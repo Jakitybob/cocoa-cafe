@@ -1,0 +1,199 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlacementSystem : MonoBehaviour
+{
+    [SerializeField]
+    private InputManager inputManager;
+
+    [SerializeField]
+    private Grid grid;
+
+    [SerializeField]
+    private ObjectsDatabase database;
+    private GridData floorData, furnitureData; // Since floor tiles can have furniture on them, keep two separate sets of data
+
+    [SerializeField]
+    private ObjectPlacer objectPlacer;
+    private float yAxisRotation = 0f;
+
+    [SerializeField]
+    private GameObject gridVisualization;
+
+    [SerializeField]
+    private PreviewSystem preview;
+    private Vector3Int lastDetectedPosition = Vector3Int.zero; // Used to make Update() more performant
+
+    IBuildingState buildingState;
+
+    // Start placement off by default
+    private void Start()
+    {
+        // Make sure game starts in non-placement mode
+        StopCurrentState();
+        gridVisualization.SetActive(false);
+
+        // Initialize member variables
+        floorData = new GridData();
+        furnitureData = new GridData();
+
+        // Bind the listener for entering build mode
+        inputManager.OnBuildMode += EnterBuildMode;
+    }
+
+    // Enters build mode, calling the default state
+    public void EnterBuildMode()
+    {
+        // Enter the default state
+        DefaultState();
+
+        // Handle listener bindings for build mode
+        HandleBuildModeBindings();
+    }
+
+    // Handles the build mode bindings, to ensure they are bound correctly in each state
+    private void HandleBuildModeBindings()
+    {
+        inputManager.OnBuildMode -= EnterBuildMode;
+        inputManager.OnBuildMode += ExitBuildMode;
+    }
+
+    // Enters the default state which is movement, and handles all bindings
+    private void DefaultState()
+    {
+        StopCurrentState(); // Make sure to stop any prior state
+        StartMovement(); // Enter the movement state as default
+    }
+
+    // Starts the state of placement
+    public void StartPlacement(int ID)
+    {
+        StopCurrentState(); // Make sure to stop placement before trying to place a new object
+        HandleBuildModeBindings();
+        gridVisualization.SetActive(true);
+
+        // Instantiate the placement state
+        buildingState = new PlacementState(ID, grid, preview, database, floorData, furnitureData, objectPlacer);
+
+        // Assign listeners to on clicked and on exit
+        inputManager.OnClicked += BuildingModeAction;
+        inputManager.OnExit -= ExitBuildMode;
+        inputManager.OnExit += DefaultState;
+        inputManager.OnRotate += RotatePlacement;
+    }
+
+    // Starts the state of removal
+    public void StartRemoval()
+    {
+        // Stop placement and turn on the grid
+        StopCurrentState();
+        HandleBuildModeBindings();
+        gridVisualization.SetActive(true);
+        buildingState = new RemovalState(grid, preview, database, floorData, furnitureData, objectPlacer);
+
+        // Assign listeners to on clicked and on exit
+        inputManager.OnClicked += BuildingModeAction;
+        inputManager.OnExit -= ExitBuildMode;
+        inputManager.OnExit += DefaultState;
+    }
+
+    // Starts the state of moving objects
+    public void StartMovement()
+    {
+        // Stop previous state and handle build mode bindings
+        StopCurrentState();
+        HandleBuildModeBindings();
+
+        // Instantiate the movement state
+        buildingState = new MoveState(grid, preview, database, furnitureData, objectPlacer);
+        gridVisualization.SetActive(true);
+
+        // Assign listeners to on clicked and on exit
+        inputManager.OnClicked += BuildingModeAction;
+        inputManager.OnExit -= DefaultState;
+        inputManager.OnExit += ExitBuildMode;
+    }
+
+    // Instantiates the specified object from the database onto the grid position
+    private void BuildingModeAction()
+    {
+        // Return early if the pointer is over the UI
+        if (inputManager.IsPointerOverUI())
+            return;
+
+        // Calculate the mouse position and its position in the grid
+        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
+        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+
+        // Call the placement state
+        buildingState.OnAction(gridPosition, new Vector3(0, yAxisRotation, 0));
+    }
+
+    // Resets member variables to default state
+    private void StopCurrentState()
+    {
+        // Only stop placement if we are in the state of placing
+        if (buildingState == null)
+            return;
+
+        // End the state of placement
+        buildingState.EndState();
+        buildingState = null;
+
+        // Remove listeners on clicked and on exit
+        inputManager.OnClicked -= BuildingModeAction;
+        inputManager.OnExit -= DefaultState;
+        inputManager.OnExit += ExitBuildMode;
+        inputManager.OnRotate -= RotatePlacement;
+        yAxisRotation = 0f;
+        lastDetectedPosition = Vector3Int.zero; // Reset the last detected position since placement/removal is done
+    }
+
+    // Turns off the grid preview and ends the current state, fully "exiting" build mode
+    private void ExitBuildMode()
+    {
+        // Disable grid visuals
+        gridVisualization.SetActive(false);
+
+        // Stop the current state
+        StopCurrentState();
+
+        // Unbind listeners and assign the build mode listener
+        inputManager.OnExit -= ExitBuildMode; // Unbind the exit as we won't be in build mode anymore
+        inputManager.OnBuildMode -= ExitBuildMode;
+        inputManager.OnBuildMode += EnterBuildMode;
+    }
+
+    // Rotates object in-placement 90 degrees
+    private void RotatePlacement()
+    {
+        // Rotate current position 90 degrees
+        if (yAxisRotation >= 270)
+            yAxisRotation = 0f;
+        else
+            yAxisRotation += 90f;
+
+        // Update the preview
+        preview.UpdateRotation(new Vector3(0, yAxisRotation, 0));
+    }
+
+    private void Update()
+    {
+        // Return early if we are not in a building mode
+        if (buildingState == null)
+            return;
+
+        // Calculate the mouse position and its position in the grid for preview purposes
+        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
+        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+
+        // Only perform preview update logic if position has changed
+        if (lastDetectedPosition != gridPosition)
+        {
+            buildingState.UpdateState(gridPosition, new Vector3(0, yAxisRotation, 0));
+            lastDetectedPosition = gridPosition; // Update the last detected position
+        }
+    }
+}

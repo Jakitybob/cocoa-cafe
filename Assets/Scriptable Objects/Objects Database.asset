@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056d7061ae545704fb25e30743fd26e3, type: 3}
+  m_Name: Objects Database
+  m_EditorClassIdentifier: 
+  objectsData:
+  - <Name>k__BackingField: Chair
+    <ID>k__BackingField: 1
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 6437908327053789365, guid: 32c9ef429dd690741b02792af795a43a, type: 3}
+    <Price>k__BackingField: 25
+  - <Name>k__BackingField: Table
+    <ID>k__BackingField: 2
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 6766703472283042687, guid: 867e9182da663ab4886699ddcbc37c93, type: 3}
+    <Price>k__BackingField: 35
