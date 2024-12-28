@@ -30,15 +30,4 @@ public class ObjectPlacer : MonoBehaviour
         Destroy(placedObjects[gameObjectIndex]);
         placedObjects[gameObjectIndex] = null;
     }
-
-    // Get the object's prefab from the specified index
-    public GameObject GetObjectPrefabAt(int gameObjectIndex)
-    {
-        // Make sure the index exists in our data and return if not
-        if (placedObjects.Count <= gameObjectIndex || placedObjects[gameObjectIndex] == null)
-            return null;
-
-        // Return the prefab used for the game object
-        return placedObjects[gameObjectIndex];
-    }
 }

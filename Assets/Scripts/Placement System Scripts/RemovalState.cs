@@ -51,7 +51,7 @@ public class RemovalState : IBuildingState
         else
         {
             // Find the index of the object to remove and ensure it is valid
-            gameObjectIndex = data.GetObjectIndex(gridPosition);
+            gameObjectIndex = data.GetPlacerIndex(gridPosition);
             if (gameObjectIndex == -1)
                 return;
 

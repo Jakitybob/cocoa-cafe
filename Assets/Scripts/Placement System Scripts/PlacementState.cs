@@ -53,14 +53,14 @@ public class PlacementState : IBuildingState
         if (!canPlace)
             return;
 
-        // Place the desired object
+        // Place the desired objectu
         int objectIndex = objectPlacer.PlaceObject(database.objectsData[selectedObjectIndex].Prefab, grid.CellToWorld(gridPosition), rotation);
 
         // Remove the funds from the player
         GameManager.instance.moneyManager.AddMoney(database.objectsData[selectedObjectIndex].Price * -1);
 
         // Add the placed object the grid data
-        furnitureData.AddObjectAt(gridPosition, database.objectsData[selectedObjectIndex].Size, database.objectsData[selectedObjectIndex].ID, objectIndex);
+        furnitureData.AddObjectAt(gridPosition, Quaternion.Euler(rotation), database.objectsData[selectedObjectIndex].Size, database.objectsData[selectedObjectIndex].ID, objectIndex, selectedObjectIndex);
 
         // Update the preview to show validity
         previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), false);
