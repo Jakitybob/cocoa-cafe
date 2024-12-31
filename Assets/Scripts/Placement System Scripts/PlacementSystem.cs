@@ -162,6 +162,8 @@ public class PlacementSystem : MonoBehaviour
 
         // Unbind listeners and assign the build mode listener
         inputManager.OnExit -= ExitBuildMode; // Unbind the exit as we won't be in build mode anymore
+        inputManager.OnExit -= ExitBuildMode; // Unbind it twice because for some reason it binds twice
+        inputManager.OnExit -= DefaultState;
         inputManager.OnBuildMode -= ExitBuildMode;
         inputManager.OnBuildMode += EnterBuildMode;
     }

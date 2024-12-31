@@ -49,8 +49,22 @@ public class InputManager : MonoBehaviour
 
         // Call any listeners bound to the escape action
         if (escape.WasPressedThisFrame())
-            OnExit?.Invoke();
-
+        {
+            // If there are no other delegates bound to exit, open the pause menu
+            if (OnExit == null || OnExit.GetInvocationList().Length <= 0)
+            {
+                // Open pause if there is no menu open
+                if (GameManager.instance.interfaceManager.activeMenu == null)
+                    GameManager.instance.interfaceManager.OpenPauseMenu();
+                // Otherwise close the current menu out
+                else
+                    GameManager.instance.interfaceManager.CloseCurrentMenu();
+            }
+            // Otherwise invoke its delegates
+            else
+                OnExit?.Invoke();
+        }
+            
         // Call any listeners bound to the OnRotate action
         if (rotate.WasPressedThisFrame())
             OnRotate?.Invoke();
