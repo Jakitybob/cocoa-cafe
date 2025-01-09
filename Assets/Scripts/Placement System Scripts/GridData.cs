@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +15,7 @@ public class GridData
         List<Vector3Int> positions = CalculatePositions(gridPosition, objectSize);
 
         // Create our placement data object to add to the dictionary
-        PlacementData data = new PlacementData(positions, rotation, ID, placerIndex, databaseIndex);
+        PlacementData data = new PlacementData(positions, objectSize, rotation, ID, placerIndex, databaseIndex);
 
         // Loop through each place in the dictionary and add the data or return a collision detected
         foreach(var position in positions)
@@ -36,6 +37,12 @@ public class GridData
         {
             placedObjects.Remove(position);
         }
+    }
+
+    // Clear out the dictionary of stored data, to be used for loading in new data
+    public void RemoveAllObjects()
+    {
+        placedObjects.Clear();
     }
 
     // Calculates the positions an object takes up given its starting position and size
@@ -118,30 +125,58 @@ public class GridData
         // Return the object ID if it does exist in the dictionary
         return placedObjects[gridPosition].rotation;
     }
+
+
+    //
+    // SAVING & LOADING
+    //
+
+    // Saves each placed object to the GameData's list of PlacementData
+    public void SavePlacementData(ref List<PlacementData> list)
+    {
+        // Loop through each placed key in the dictionary of objects
+        foreach(var key in placedObjects.Keys)
+        {
+            list.Add(placedObjects[key]);
+        }
+    }
+
+    // Loads in placement data from the GameData's list of PlacementData
+    public void LoadPlacementData(GameData data)
+    {
+        // for each placement data stored in the game data list
+            // add the placement data to the grid data
+            // place the object in the world
+    }
 }
 
 // Contains data on object placed in grid cells
+[System.Serializable]
 public class PlacementData
 {
     // List of all occupied positions on the grid, for the case of things like 2x1+ objects
     public List<Vector3Int> occupiedPositions;
 
+    // The size of the object
+    public Vector2Int objectSize;
+
     // The quaternion rotation of the object
-    public Quaternion rotation { get; private set; }
+    public Quaternion rotation;
 
     // The ID of the object type
-    public int ID { get; private set; } // Useful for saving/loading grid data
+    public int ID; // Useful for saving/loading grid data
 
     // The index of the object in the object placer's storage
-    public int placedObjectIndex { get; private set; }
+    public int placedObjectIndex;
 
     // The index of the object's information in the object database it is from
-    public int databaseIndex { get; private set; }
+    public int databaseIndex;
 
     // Constructor
-    public PlacementData(List<Vector3Int> occupiedPositions, Quaternion rotation, int ID, int placedObjectIndex, int databaseIndex)
+    public PlacementData(List<Vector3Int> occupiedPositions, Vector2Int objectSize, Quaternion rotation, int ID, int placedObjectIndex, int databaseIndex)
     {
         this.occupiedPositions = occupiedPositions;
+        this.objectSize = objectSize;
         this.rotation = rotation;
         this.ID = ID;
         this.placedObjectIndex = placedObjectIndex;

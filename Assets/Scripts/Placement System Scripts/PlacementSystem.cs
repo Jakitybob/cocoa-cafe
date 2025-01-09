@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlacementSystem : MonoBehaviour
+public class PlacementSystem : MonoBehaviour, IGameData
 {
     [SerializeField]
     private InputManager inputManager;
@@ -197,5 +197,40 @@ public class PlacementSystem : MonoBehaviour
             buildingState.UpdateState(gridPosition, new Vector3(0, yAxisRotation, 0));
             lastDetectedPosition = gridPosition; // Update the last detected position
         }
+    }
+
+
+    //
+    // SAVING & LOADING
+    //
+
+    public void LoadData(GameData data)
+    {
+        // Clear all placed objects and empty the grid data
+        objectPlacer.RemoveAllObjects();
+        floorData.RemoveAllObjects();
+        furnitureData.RemoveAllObjects();
+
+        // Loop through all placement data found in the game data
+        foreach (var placed in data.furniturePlacementData)
+        {
+            // Place the new object and update the index in the data
+            int newIndex = objectPlacer.PlaceObject(database.objectsData[placed.databaseIndex].Prefab, placed.occupiedPositions[0], placed.rotation.eulerAngles);
+            placed.placedObjectIndex = newIndex;
+
+            // Add the new object's data to the grid data
+            furnitureData.AddObjectAt(placed.occupiedPositions[0], placed.rotation, placed.objectSize, placed.ID, placed.placedObjectIndex, placed.databaseIndex);
+        }
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        // Save floor data
+        data.floorPlacementData.Clear(); // Clear out all existing data before entering new data
+        floorData.SavePlacementData(ref data.floorPlacementData);
+
+        // Save furniture data
+        data.furniturePlacementData.Clear(); // Clear out all existing data before entering new data
+        furnitureData.SavePlacementData(ref data.furniturePlacementData);
     }
 }
