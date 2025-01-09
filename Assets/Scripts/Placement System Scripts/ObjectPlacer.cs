@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class ObjectPlacer : MonoBehaviour
 {
     private List<GameObject> placedObjects = new(); // List of placed objects, can be used for undo system as well?
-    
+
     // Instantiate and place a new game object
     public int PlaceObject(GameObject objectPrefab, Vector3 position, Vector3 rotation)
     {
@@ -29,5 +29,14 @@ public class ObjectPlacer : MonoBehaviour
         // Destroy the game object and remove it from the list
         Destroy(placedObjects[gameObjectIndex]);
         placedObjects[gameObjectIndex] = null;
+    }
+
+    // Delete all objects currently placed, to be used for loading in new data
+    public void RemoveAllObjects()
+    {
+        foreach (var obj in placedObjects)
+        {
+            Destroy(obj);
+        }
     }
 }
