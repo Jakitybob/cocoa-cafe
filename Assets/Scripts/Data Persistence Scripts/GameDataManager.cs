@@ -27,6 +27,7 @@ public class GameDataManager : MonoBehaviour
         {
             Debug.Log("There is more than one game data manager detected. The newest one has been destroyed.");
             Destroy(this.gameObject);
+            return;
         }
 
         // Update the instance
@@ -94,7 +95,10 @@ public class GameDataManager : MonoBehaviour
 
         // Send the loaded data out to all the IGameData classes
         foreach (IGameData gameDataObject in gameDataObjects)
+        {
+            Debug.Log(gameDataObject.ToString());
             gameDataObject.LoadData(data);
+        }
     }   
     
     // Writes out data from all IGameData objects

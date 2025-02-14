@@ -39,8 +39,6 @@ public class PlacementSystem : MonoBehaviour, IGameData
     // Start placement off by default
     private void Start()
     {
-        Debug.Log("Placement System Started");
-
         // Make sure game starts in non-placement mode
         StopCurrentState();
         gridVisualization.SetActive(false);
@@ -217,9 +215,13 @@ public class PlacementSystem : MonoBehaviour, IGameData
 
         if (floorData != null)
             floorData.RemoveAllObjects();
+        else
+            Debug.Log("Floor data was detected as null.");
 
         if (furnitureData != null)
             furnitureData.RemoveAllObjects();
+        else
+            Debug.Log("Furniture data was detected as null.");
 
         // Loop through all placement data found in the game data
         foreach (var placed in data.furniturePlacementData)
