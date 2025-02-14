@@ -13,7 +13,7 @@ public class GameData
     // The values in this constructor are the "default values" for a new game
     public GameData()
     {
-        money = 1000f;
+        money = 1000.0f;
         floorPlacementData = new();
         furniturePlacementData = new();
     }

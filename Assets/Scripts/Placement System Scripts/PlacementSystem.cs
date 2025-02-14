@@ -28,16 +28,22 @@ public class PlacementSystem : MonoBehaviour, IGameData
 
     IBuildingState buildingState;
 
-    // Start placement off by default
-    private void Start()
+    // Initialize member variables in Awake
+    private void Awake()
     {
-        // Make sure game starts in non-placement mode
-        StopCurrentState();
-        gridVisualization.SetActive(false);
-
         // Initialize member variables
         floorData = new GridData();
         furnitureData = new GridData();
+    }
+
+    // Start placement off by default
+    private void Start()
+    {
+        Debug.Log("Placement System Started");
+
+        // Make sure game starts in non-placement mode
+        StopCurrentState();
+        gridVisualization.SetActive(false);
 
         // Bind the listener for entering build mode
         inputManager.OnBuildMode += EnterBuildMode;
@@ -208,8 +214,12 @@ public class PlacementSystem : MonoBehaviour, IGameData
     {
         // Clear all placed objects and empty the grid data
         objectPlacer.RemoveAllObjects();
-        floorData.RemoveAllObjects();
-        furnitureData.RemoveAllObjects();
+
+        if (floorData != null)
+            floorData.RemoveAllObjects();
+
+        if (furnitureData != null)
+            furnitureData.RemoveAllObjects();
 
         // Loop through all placement data found in the game data
         foreach (var placed in data.furniturePlacementData)

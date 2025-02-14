@@ -45,6 +45,10 @@ public class InterfaceManager : MonoBehaviour
         // Deactive and null the current menu
         activeMenu.SetActive(false);
         activeMenu = null;
+
+        // Unpause the game if it is paused
+        if (GameManager.instance.isPaused)
+            GameManager.instance.TogglePauseGame();
     }
 
     // Resumes play by unpausing the game and closing the pause menu
