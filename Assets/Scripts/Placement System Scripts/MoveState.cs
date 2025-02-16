@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 
 public class MoveState : IBuildingState
@@ -61,7 +62,7 @@ public class MoveState : IBuildingState
     }
 
     // Pick up the selected object and allow the user to place it back down wherever is valid
-    public void OnAction(Vector3Int gridPosition, Vector3 rotation)
+    public void OnAction(Vector3Int gridPosition)
     {
         // If not currently holding an object, try to pick up an object
         if (!isHoldingObject)
@@ -75,6 +76,7 @@ public class MoveState : IBuildingState
 
                 // Use the object's index from the database and create a new heldObject struct
                 held = new heldObject(gameObjectIndex, gridPosition, furnitureData.GetObjectRotationAt(gridPosition));
+                Debug.Log("Object Rotation on Pickup: " + held.lastRotation.eulerAngles);
                 isHoldingObject = true;
 
                 // Remove the object from the grid
@@ -102,6 +104,7 @@ public class MoveState : IBuildingState
                 previewSystem.StartShowingCursorPreview();
 
                 // Toggle held state
+                
                 isHoldingObject = false;
             }
         }
@@ -122,9 +125,8 @@ public class MoveState : IBuildingState
         if (isHoldingObject)
         {
             // Update the object's rotation
-            // TODO: Fix this <-----
-            //held.currentRotation = Quaternion.Euler(held.currentRotation.eulerAngles + rotation);
-            //previewSystem.UpdateRotation(rotation);
+            held.currentRotation = Quaternion.Euler(held.currentRotation.eulerAngles + rotation);
+            previewSystem.UpdateRotation(held.currentRotation.eulerAngles);
 
             // Display white if the object can be placed
             if (CanPlaceObject(gridPosition, held.objectIndex))

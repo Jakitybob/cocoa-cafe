@@ -17,7 +17,6 @@ public class PlacementSystem : MonoBehaviour, IGameData
 
     [SerializeField]
     private ObjectPlacer objectPlacer;
-    private float yAxisRotation = 0f;
 
     [SerializeField]
     private GameObject gridVisualization;
@@ -118,6 +117,7 @@ public class PlacementSystem : MonoBehaviour, IGameData
         inputManager.OnClicked += BuildingModeAction;
         inputManager.OnExit -= DefaultState;
         inputManager.OnExit += ExitBuildMode;
+        inputManager.OnRotate += RotatePlacement;
     }
 
     // Instantiates the specified object from the database onto the grid position
@@ -128,11 +128,10 @@ public class PlacementSystem : MonoBehaviour, IGameData
             return;
 
         // Calculate the mouse position and its position in the grid
-        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
-        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+        Vector3Int gridPosition = MouseToGrid(inputManager.GetSelectedMapPosition());
 
         // Call the placement state
-        buildingState.OnAction(gridPosition, new Vector3(0, yAxisRotation, 0));
+        buildingState.OnAction(gridPosition);
     }
 
     // Resets member variables to default state
@@ -151,7 +150,6 @@ public class PlacementSystem : MonoBehaviour, IGameData
         inputManager.OnExit -= DefaultState;
         inputManager.OnExit += ExitBuildMode;
         inputManager.OnRotate -= RotatePlacement;
-        yAxisRotation = 0f;
         lastDetectedPosition = Vector3Int.zero; // Reset the last detected position since placement/removal is done
     }
 
@@ -175,14 +173,12 @@ public class PlacementSystem : MonoBehaviour, IGameData
     // Rotates object in-placement 90 degrees
     private void RotatePlacement()
     {
-        // Rotate current position 90 degrees
-        if (yAxisRotation >= 270)
-            yAxisRotation = 0f;
-        else
-            yAxisRotation += 90f;
+        // Calculate the mouse position and its position in the grid to update the building state
+        Vector3Int gridPosition = MouseToGrid(inputManager.GetSelectedMapPosition());
 
-        // Update the preview
-        preview.UpdateRotation(new Vector3(0, yAxisRotation, 0));
+        // Update the preview and building state
+        //preview.UpdateRotation(new Vector3(0, yAxisRotation, 0));
+        buildingState.UpdateState(gridPosition, new Vector3(0, 90, 0));
     }
 
     private void Update()
@@ -192,15 +188,19 @@ public class PlacementSystem : MonoBehaviour, IGameData
             return;
 
         // Calculate the mouse position and its position in the grid for preview purposes
-        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
-        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+        Vector3Int gridPosition = MouseToGrid(inputManager.GetSelectedMapPosition());
 
         // Only perform preview update logic if position has changed
         if (lastDetectedPosition != gridPosition)
         {
-            buildingState.UpdateState(gridPosition, new Vector3(0, yAxisRotation, 0));
+            buildingState.UpdateState(gridPosition, Vector3.zero);
             lastDetectedPosition = gridPosition; // Update the last detected position
         }
+    }
+
+    private Vector3Int MouseToGrid(Vector3 mousePosition)
+    {
+        return grid.WorldToCell(mousePosition);
     }
 
 

@@ -31,7 +31,7 @@ public class RemovalState : IBuildingState
     }
 
     // Removes the object at the position on action of the state
-    public void OnAction(Vector3Int gridPosition, Vector3 rotation)
+    public void OnAction(Vector3Int gridPosition)
     {
         GridData data = null;
 

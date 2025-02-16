@@ -13,6 +13,7 @@ public class PlacementState : IBuildingState
     ObjectsDatabase database;
     GridData floorData, furnitureData;
     ObjectPlacer objectPlacer;
+    Quaternion rotation;
 
     // Constructor; also sets up placement preview as well as variables
     public PlacementState(int ID, Grid grid, PreviewSystem previewSystem, ObjectsDatabase database, GridData floorData, GridData furnitureData, ObjectPlacer objectPlacer)
@@ -24,9 +25,10 @@ public class PlacementState : IBuildingState
         this.floorData = floorData;
         this.furnitureData = furnitureData;
         this.objectPlacer = objectPlacer;
+        this.rotation = Quaternion.Euler(Vector3.zero);
 
         selectedObjectIndex = database.objectsData.FindIndex(data => data.ID == ID); // Short hand lambda for-loop to find matching data
-
+        
         // Make sure the object index is valid
         if (selectedObjectIndex > -1)
         {
@@ -44,7 +46,7 @@ public class PlacementState : IBuildingState
     }
 
     // What to do when the state is "acted" upon
-    public void OnAction(Vector3Int gridPosition, Vector3 rotation)
+    public void OnAction(Vector3Int gridPosition)
     {
         // Check if placement in this position is valid and the user has enough money
         bool canPlace = CanPlaceObject(gridPosition, selectedObjectIndex);
@@ -54,17 +56,17 @@ public class PlacementState : IBuildingState
             return;
 
         // Place the desired objectu
-        int objectIndex = objectPlacer.PlaceObject(database.objectsData[selectedObjectIndex].Prefab, grid.CellToWorld(gridPosition), rotation);
+        int objectIndex = objectPlacer.PlaceObject(database.objectsData[selectedObjectIndex].Prefab, grid.CellToWorld(gridPosition), rotation.eulerAngles);
 
         // Remove the funds from the player
         GameManager.instance.moneyManager.AddMoney(database.objectsData[selectedObjectIndex].Price * -1);
 
         // Add the placed object the grid data
-        furnitureData.AddObjectAt(gridPosition, Quaternion.Euler(rotation), database.objectsData[selectedObjectIndex].Size, database.objectsData[selectedObjectIndex].ID, objectIndex, selectedObjectIndex);
+        furnitureData.AddObjectAt(gridPosition, rotation, database.objectsData[selectedObjectIndex].Size, database.objectsData[selectedObjectIndex].ID, objectIndex, selectedObjectIndex);
 
         // Update the preview to show validity
         previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), false);
-        previewSystem.UpdateRotation(rotation);
+        previewSystem.UpdateRotation(rotation.eulerAngles);
     }
 
     // Returns whether or not the object can be placed using information in the grid data
@@ -87,6 +89,9 @@ public class PlacementState : IBuildingState
         // Check if placement in this position is valid
         bool canPlace = CanPlaceObject(gridPosition, selectedObjectIndex);
         previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), canPlace);
-        previewSystem.UpdateRotation(rotation);
+
+        // Update rotation and preview
+        this.rotation.eulerAngles += rotation;
+        previewSystem.UpdateRotation(this.rotation.eulerAngles);
     }
 }
