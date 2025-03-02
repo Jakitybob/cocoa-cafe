@@ -8,11 +8,9 @@ public class GameManager : MonoBehaviour
     // Singleton instance of this class
     public static GameManager instance;
 
-    [SerializeField]
-    public InterfaceManager interfaceManager;
-
-    [SerializeField]
-    public MoneyManager moneyManager;
+    [Header("Managers")]
+    [SerializeField] public InterfaceManager interfaceManager;
+    [SerializeField] public MoneyManager moneyManager;
 
     public bool isPaused = false;
     private float defaultGameTimescale;
