@@ -31,6 +31,11 @@ public class InteractableChair : BaseInteractable
         return null;
     }
 
+    public int GetNumSeats()
+    {
+        return seats.Count;
+    }
+
     // Occupy the first available seat
     public override void Interact(GameObject interactor)
     {

@@ -47,6 +47,7 @@ public class InteractableManager : MonoBehaviour
         if (furniture is InteractableChair)
         {
             chairs.Add((InteractableChair)furniture);
+            GameManager.instance.customerLimit += ((InteractableChair)furniture).GetNumSeats();
         }
     }
 }

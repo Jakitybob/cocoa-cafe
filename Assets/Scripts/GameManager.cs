@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     public bool isPaused = false;
     private float defaultGameTimescale;
+    public float customerLimit = 0; // Set by the interactable manager after all interactable seats have been queried
 
     // Called before the first frame, used to ensure no second instance is created
     private void Awake()

@@ -10,6 +10,7 @@ public class CustomerSpawnManager : MonoBehaviour
     [SerializeField] float spawnDelay = 5f;
 
     private bool isSpawning = false;
+    private int numCustomers = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +21,7 @@ public class CustomerSpawnManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isSpawning)
+        if (!isSpawning && numCustomers < GameManager.instance.customerLimit)
             StartCoroutine(SpawnCustomer());
     }
 
@@ -30,6 +31,7 @@ public class CustomerSpawnManager : MonoBehaviour
         yield return new WaitForSeconds(spawnDelay);
 
         Instantiate(customerPrefab, spawnLocation, Quaternion.identity);
+        numCustomers++;
         isSpawning = false;
     }
 }
