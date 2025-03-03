@@ -93,6 +93,7 @@ public class InputManager : MonoBehaviour
         Vector3 mousePos = Input.mousePosition;
         mousePos.z = sceneCamera.nearClipPlane; // Make sure only visible objects can be detected
         Ray ray = sceneCamera.ScreenPointToRay(mousePos);
+        placementLayerMask = LayerMask.GetMask("Default");
 
         // Perform a raycast to the mouse position
         RaycastHit hit;
